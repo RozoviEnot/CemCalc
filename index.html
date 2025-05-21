@@ -2,24 +2,35 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Калькулятор финишной смеси</title>
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     :root {
       --bg-color: #f9f9f9;
       --container-bg: #fff;
-      --text-color: #000;
-      --button-bg: #4CAF50;
-      --button-hover: #45a049;
-      --result-bg: #fafafa;
+      --text-color: #000000;
+      --button-bg: #eaecee;
+      --button-text-color: #000000;
+      --button-hover: #d5d8dc;
+      --result-bg: #eaecee;
+      --border-color: #ddd;
+      --error-color: #f44336;
     }
 
     [data-theme="dark"] {
       --bg-color: #121212;
       --container-bg: #1e1e1e;
-      --text-color: #f5f5f5;
-      --button-bg: ##566573;
-      --button-hover: #808B96;
-      --result-bg: ##566573;
+      --text-color: #e0e0e0;
+      --button-bg: #566573;
+      --button-text-color: #ffffff;
+      --button-hover: #808b96;
+      --result-bg: #566573;
+      --border-color: #444;
+      --error-color: #ef9a9a;
     }
 
     body {
@@ -27,54 +38,62 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 40px;
+      padding: 20px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
+      min-height: 100vh;
       transition: background-color 0.3s, color 0.3s;
     }
 
     .container {
       background-color: var(--container-bg);
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       padding: 30px;
-      max-width: 500px;
+      max-width: 600px;
       width: 100%;
-      transition: background-color 0.3s;
+      transition: all 0.3s;
     }
 
     h1 {
       font-size: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
     }
 
     label {
       font-weight: 600;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       display: block;
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      margin-bottom: 20px;
       font-size: 16px;
+      background-color: var(--container-bg);
+      color: var(--text-color);
     }
 
     button {
       width: 100%;
       background-color: var(--button-bg);
-      color: white;
+      color: var(--button-text-color);
       border: none;
       padding: 12px;
       border-radius: 6px;
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: all 0.3s;
+      margin-bottom: 15px;
     }
 
     button:hover {
@@ -84,73 +103,145 @@
     .result {
       margin-top: 20px;
       padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
       background-color: var(--result-bg);
       font-size: 16px;
     }
 
-    ul {
-      padding-left: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    .theme-toggle {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
+    .theme-toggle button {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: transparent;
+      color: var(--button-text-color);
+      border: 1px solid var(--border-color);
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="theme-toggle">
-      <button onclick="toggleTheme()">Сменить тему</button>
+      <button onclick="toggleTheme()">🌓 Переключить тему</button>
     </div>
     <h1>Калькулятор финишной смеси</h1>
-    <label for="cement">Количество цемента (кг):</label>
-    <input type="number" id="cement" value="5" step="0.1" min="0.1">
-    <button onclick="calculateMix()">Рассчитать</button>
-    <div class="result" id="results"></div>
+
+    <div class="input-group">
+      <label for="cement">Цемент (кг):</label>
+      <input type="number" id="cement" value="5" step="0.1" min="0.1">
+    </div>
+
+    <div class="input-group">
+      <label for="sandRatio">Пропорция песка:</label>
+      <input type="number" id="sandRatio" step="0.01">
+    </div>
+
+    <div class="input-group">
+      <label for="limeRatio">Пропорция извести:</label>
+      <input type="number" id="limeRatio" step="0.01">
+    </div>
+
+    <div class="input-group">
+      <label for="kaolinRatio">Пропорция каолина:</label>
+      <input type="number" id="kaolinRatio" step="0.01">
+    </div>
+
+    <div class="input-group">
+      <label for="latexRatio">Пропорция SikaLatex (л):</label>
+      <input type="number" id="latexRatio" step="0.01">
+    </div>
+
+    <div class="input-group">
+      <label for="waterRatio">Пропорция воды (л):</label>
+      <input type="number" id="waterRatio" step="0.01">
+    </div>
+
+    <div class="input-group">
+      <label for="plasticizerRatio">Пропорция суперпластификатора (г):</label>
+      <input type="number" id="plasticizerRatio" step="0.1">
+    </div>
+
+    <button onclick="calculateMix()">Рассчитать состав</button>
+    <button onclick="saveRatios()">💾 Сохранить пропорции</button>
+
+    <div class="result" id="results">Введите данные и нажмите "Рассчитать состав"</div>
   </div>
 
   <script>
+    const ratioFields = [
+      "sandRatio",
+      "limeRatio",
+      "kaolinRatio",
+      "latexRatio",
+      "waterRatio",
+      "plasticizerRatio"
+    ];
+
+    function loadRatios() {
+      ratioFields.forEach(id => {
+        const stored = localStorage.getItem(id);
+        if (stored !== null) {
+          document.getElementById(id).value = stored;
+        } else {
+          const defaults = {
+            sandRatio: 1.6,
+            limeRatio: 0.18,
+            kaolinRatio: 0.11,
+            latexRatio: 0.2,
+            waterRatio: 1.0,
+            plasticizerRatio: 6.5
+          };
+          document.getElementById(id).value = defaults[id];
+        }
+      });
+    }
+
+    function saveRatios() {
+      ratioFields.forEach(id => {
+        const value = document.getElementById(id).value;
+        localStorage.setItem(id, value);
+      });
+      alert("Пропорции сохранены!");
+    }
+
     function calculateMix() {
       const cement = parseFloat(document.getElementById('cement').value);
       if (isNaN(cement) || cement <= 0) {
-        document.getElementById('results').innerHTML = '<span style="color:red">Введите корректное количество цемента</span>';
+        document.getElementById('results').innerText = "Введите корректное количество цемента!";
         return;
       }
 
+      const ratios = {};
+      ratioFields.forEach(id => {
+        ratios[id] = parseFloat(document.getElementById(id).value);
+      });
+
       const results = {
-        "Песок": [cement * 1.5, cement * 1.8],
-        "Гашёная известь": [cement * 0.15, cement * 0.20],
-        "Каолин": [cement * 0.10, cement * 0.12],
-        "SikaLatex® (л)": cement * 0.2,
-        "Вода (л)": cement * 1.0,
-        "Суперпластификатор (г, опц.)": [cement * 5, cement * 8]
+        "Песок (кг)": cement * ratios.sandRatio,
+        "Гашёная известь (кг)": cement * ratios.limeRatio,
+        "Каолин (кг)": cement * ratios.kaolinRatio,
+        "SikaLatex (л)": cement * ratios.latexRatio,
+        "Вода (л)": cement * ratios.waterRatio,
+        "Суперпластификатор (г)": cement * ratios.plasticizerRatio
       };
 
-      let html = `<strong>На ${cement.toFixed(2)} кг цемента:</strong><ul>`;
+      let html = `<strong>Состав на ${cement} кг цемента:</strong><ul>`;
       for (const [key, value] of Object.entries(results)) {
-        if (Array.isArray(value)) {
-          html += `<li><strong>${key}</strong>: ${value[0].toFixed(2)} – ${value[1].toFixed(2)}</li>`;
-        } else {
-          html += `<li><strong>${key}</strong>: ${value.toFixed(2)}</li>`;
-        }
+        html += `<li><strong>${key}</strong>: ${value.toFixed(2)}</li>`;
       }
       html += '</ul>';
+
       document.getElementById('results').innerHTML = html;
     }
 
     function toggleTheme() {
-      const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
-      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      const current = document.documentElement.getAttribute('data-theme');
+      document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
+
+    loadRatios();
+    calculateMix();
   </script>
 </body>
 </html>
